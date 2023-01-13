@@ -1,0 +1,54 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.Components.Server.Circuits;
+@using Microsoft.AspNetCore.Identity;
+@using Microsoft.Extensions.Options;
+@inject GlobalCircuitService globalCircuitService
+@inject CircuitHandler circuitHandler
+@inject IOptions<IdentityOptions> optionsAccessor
+
+<PageTitle>Index</PageTitle>
+
+<p>
+    Number of Circuits: @(globalCircuitService.Circuits.Count)
+    <ul>
+        @foreach (var kvp in globalCircuitService.Circuits)
+        {
+            <li>@kvp.Key.Id - <strong>@(kvp.Value?.Identity?.Name ?? "Unauthenticated")</strong></li>
+        }
+    </ul>
+</p>
+
+<AuthorizeView>
+    <Authorized>
+        <h1>Hello @context.User.Identity.Name!</h1>
+        <h4>@context.User.FindFirst(optionsAccessor.Value.ClaimsIdentity.SecurityStampClaimType)</h4>
+    </Authorized>
+    <NotAuthorized>
+        <h1>You must sign in to see this content.</h1>
+    </NotAuthorized>
+</AuthorizeView>
+
+<p>@CurrentCircuitMessage</p>
+
+@code {
+    public string CurrentCircuitMessage = "";
+
+    private IdentityTrackingCircuitHandler _trackingHandler;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        CurrentCircuitMessage = $"Circuit ID = {_trackingHandler.Circuit.Id}";
+        StateHasChanged();
+    }
+    protected override void OnInitialized()
+    {
+        if (circuitHandler is not IdentityTrackingCircuitHandler handler)
+        {
+            return;
+        }
+
+        _trackingHandler = handler;
+
+        globalCircuitService.CircuitsChanged += (_, _) => InvokeAsync(StateHasChanged);
+    }
+}
