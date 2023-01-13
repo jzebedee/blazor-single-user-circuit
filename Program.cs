@@ -1,10 +1,6 @@
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server.Circuits;
-using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.EntityFrameworkCore;
 using SingleUserCircuit;
 using SingleUserCircuit.Areas.Identity;
@@ -30,6 +26,10 @@ builder.Services.AddScoped<CircuitHandler, IdentityTrackingCircuitHandler>();
 
 builder.Services.AddScoped<CustomCookieAuthenticationEvents<IdentityUser>>();
 
+builder.Services.Configure<SecurityStampValidatorOptions>(options =>
+{
+    options.ValidationInterval = TimeSpan.FromSeconds(30);
+});
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.EventsType = typeof(CustomCookieAuthenticationEvents<IdentityUser>);
