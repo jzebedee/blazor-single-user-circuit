@@ -24,16 +24,12 @@ builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddSingleton<GlobalCircuitService>();
 builder.Services.AddScoped<CircuitHandler, IdentityTrackingCircuitHandler>();
 
-builder.Services.AddScoped<CustomCookieAuthenticationEvents<IdentityUser>>();
-
 builder.Services.Configure<SecurityStampValidatorOptions>(options =>
 {
     options.ValidationInterval = TimeSpan.FromSeconds(30);
 });
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.EventsType = typeof(CustomCookieAuthenticationEvents<IdentityUser>);
-
     options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
     options.SlidingExpiration = true;
 });
